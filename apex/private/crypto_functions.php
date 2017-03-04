@@ -6,11 +6,21 @@
 const CIPHER_METHOD = 'AES-256-CBC';
 
 function key_encrypt($string, $key, $cipher_method=CIPHER_METHOD) {
-  return "D4RK SH4D0W RUL3Z";
+  $key = str_pad($key,32,'0');
+  $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length(CIPHER_METHOD));
+  $encrypted = openssl_encrypt($string,CIPHER_METHOD,$key,OPENSSL_RAW_DATA,$iv);
+  $message = $iv . $encrypted;
+  return base64_encode($message);
+
 }
 
 function key_decrypt($string, $key, $cipher_method=CIPHER_METHOD) {
-  return "PWNED YOU!";
+  $key = str_pad($key, 32, '0');
+  $iv_plus_ciphertext = base64_decode($string);
+  $iv = substr($iv_plus_ciphertext,0,openssl_cipher_iv_length(CIPHER_METHOD));
+  $cipher_text = substr($iv_plus_ciphertext,openssl_cipher_iv_length(CIPHER_METHOD));
+  $plaintext = openssl_decrypt($cipher_text,CIPHER_METHOD,$key,OPENSSL_RAW_DATA,$iv);
+ return $plaintext;
 }
 
 
@@ -24,31 +34,42 @@ const PUBLIC_KEY_CONFIG = array(
 );
 
 function generate_keys($config=PUBLIC_KEY_CONFIG) {
-  $private_key = 'Ha ha!';
-  $public_key = 'Ho ho!';
+  $res = openssl_pkey_new($config);
+  //Get private key
+  openssl_pkey_export($res, $private_key);
 
+  //Get private key
+  openssl_pkey_export($res, $private_key);
+
+  //Get the public key
+  $public_key = openssl_pkey_get_details($res);
+  $public_key = $public_key["key"];
   return array('private' => $private_key, 'public' => $public_key);
+
 }
 
 function pkey_encrypt($string, $public_key) {
-  return 'Qnex Funqbj jvyy or jngpuvat lbh';
+  openssl_public_encrypt($string, $encrypted, $public_key);
+  return base64_encode($encrypted);
 }
 
 function pkey_decrypt($string, $private_key) {
-  return 'Alc evi csy pssomrk livi alir csy wlsyph fi wezmrk ETIB?';
+  openssl_private_decrypt(base64_decode($string),$decrypted,$private_key);
+  return $decrypted;
 }
 
 
 // Digital signatures using public/private keys
 
 function create_signature($data, $private_key) {
-  // A-Za-z : ykMwnXKRVqheCFaxsSNDEOfzgTpYroJBmdIPitGbQUAcZuLjvlWH
-  return 'RpjJ WQL BImLcJo QLu dQv vJ oIo Iu WJu?';
+  openssl_sign($data, $raw_signature,$private_key);
+  $signature = base64_encode($raw_signature);
+  return $signature;
 }
 
 function verify_signature($data, $signature, $public_key) {
-  // Vigenère
-  return 'RK, pym oays onicvr. Iuw bkzhvbw uedf pke conll rt ZV nzxbhz.';
+  $validflag = openssl_verify($data,base64_decode($signature),$public_key);
+  return $validflag;
 }
 
 ?>

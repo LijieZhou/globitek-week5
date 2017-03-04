@@ -16,8 +16,8 @@
       // This is a create signature request
       $message = isset($_POST['message']) ? $_POST['message'] : nil;
       $private_key = isset($_POST['private_key']) ? $_POST['private_key'] : nil;
-      openssl_sign($message,$result_signature, $private_key);
-      $signature = base64_encode($result_signature);
+      $result_signature = create_signature($message,$private_key);
+      $signature = $result_signature;
 
     } else {
 
@@ -25,8 +25,8 @@
       $message = isset($_POST['message']) ? $_POST['message'] : nil;
       $signature = isset($_POST['signature']) ? $_POST['signature'] : nil;
       $public_key = isset($_POST['public_key']) ? $_POST['public_key'] : nil;
-      $raw_signature = base64_decode($signature);
-      $result = openssl_verify($message, $raw_signature, $public_key);
+
+      $result = verify_signature($message,$signature,$public_key);
       $result_text = $result === 1 ? 'Valid' : 'Not valid';
     }
   }

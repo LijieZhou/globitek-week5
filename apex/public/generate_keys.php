@@ -3,21 +3,25 @@
   require_once('../private/initialize.php');
 
   if(isset($_POST['submit'])) {
-    $config = array(
-      "digest_alg" => "sha512",
-      "private_key_bits" => 2048,
-      "private_key_type" => OPENSSL_KEYTYPE_RSA,
-    );
+    // $config = array(
+    //   "digest_alg" => "sha512",
+    //   "private_key_bits" => 2048,
+    //   "private_key_type" => OPENSSL_KEYTYPE_RSA,
+    // );
 
     //Create the keypair
-    $res = openssl_pkey_new($config);
+    // $res = openssl_pkey_new($config);
 
     //Get private key
-    openssl_pkey_export($res, $private_key);
+    // openssl_pkey_export($res, $private_key);
 
     //Get the public key
-    $public_key = openssl_pkey_get_details($res);
-    $public_key = $public_key["key"];
+    // $public_key = openssl_pkey_get_details($res);
+    // $public_key = $public_key["key"];
+
+    $keys = generate_keys();
+    $public_key = $keys['public'];
+    $private_key = $keys['private'];
 
   }
 

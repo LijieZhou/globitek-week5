@@ -45,12 +45,11 @@
         <?php
           $created_at = strtotime($message['created_at']);
           $sender = db_fetch_assoc(find_agent_by_id($message['sender_id']));
+          //Retrieve the ciper_text from the database.
           $message_text = $message['cipher_text'];
-
-
           //verify the signature
-          $raw_signature = base64_decode($message['signature']);
-          if(openssl_verify($message_text, $raw_signature,$sender['public_key'])==1){
+
+          if(verify_signature($message_text,$message['signature'],$sender['public_key']) == 1){
             $validity_text = 'valid';
           }else{
             $validity_text = 'not valid';
@@ -58,7 +57,13 @@
 
           //if the signature is valid, decrypt the message
           if($current_user['id'] == $agent['id']){
-            openssl_private_decrypt($message_text,$decrypted_text,$sender['private_key']);
+            // echo $message_text;
+            // echo "--------------";
+            // $raw_message_text = base64_encode($message_text);
+            // echo $raw_message_text;
+            $message_text = pkey_decrypt($message_text,$current_user['private_key']);
+            // $message_text = base64_decode($decrypted_text);
+            // $message_text = $decrypted_text;
           }
 
 

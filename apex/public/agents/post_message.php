@@ -8,19 +8,18 @@
       redirect_to('index.php');
     }
 
-    // I'm sorry, did you need this code? ;)
-    // Guess you'll just have to re-write it.
-    // With love, Dark Shadow
+
     $agent_result = find_agent_by_id($_GET['id']);
     $agent = db_fetch_assoc($agent_result);
-    $sender_result = find_agent_by_id(1);
-    $sender = db_fetch_assoc($sender_result);
+    // $sender_result = find_agent_by_id(1);
+    // $sender = db_fetch_assoc($sender_result);
+    $sender = $current_user;
 
+    //sender encrypt the message using agent's publickey.
+    $encrypted_text = pkey_encrypt($_POST['plain_text'],$agent['public_key']);
 
-    openssl_public_encrypt($_POST['plain_text'], $raw_encrypted_text,$agent['public_key']);
-    $encrypted_text = base64_encode($raw_encrypted_text);
-    openssl_sign($_POST['plain_text'],$raw_signature, $sender['private_key']);
-    $signature = base64_encode($raw_signature);
+    //Sender sign the encrypted message with its own privatekey
+    $signature = create_signature($encrypted_text,$sender['private_key']);
 
     $message = [
       'sender_id' => $sender['id'],

@@ -16,22 +16,17 @@
       // This is an encode request
       $plain_text = isset($_POST['plain_text']) ? $_POST['plain_text'] : nil;
       $public_key = isset($_POST['public_key']) ? $_POST['public_key'] : nil;
-      openssl_public_encrypt($plain_text, $encrypted_text ,$public_key);
+      $encrypted_text = pkey_encrypt($plain_text, $public_key);
       // echo $encrypted_text;
-      $readerable_text = base64_encode($encrypted_text);
-
-      $cipher_text = $readerable_text;
+      $cipher_text = $encrypted_text;
 
     } else {
 
       // This is a decode request
       $cipher_text = isset($_POST['cipher_text']) ? $_POST['cipher_text'] : nil;
       $private_key = isset($_POST['private_key']) ? $_POST['private_key'] : nil;
-      $decoded_text = base64_decode($cipher_text);
-      openssl_private_decrypt($decoded_text,$decrypted_text,$private_key);
 
-
-
+      $decrypted_text = pkey_decrypt($cipher_text,$private_key);
 
     }
   }
@@ -85,7 +80,7 @@
       <form action="" method="post">
         <div>
           <label for="cipher_text">Cipher text</label>
-          <textarea name="cipher_text"><?php echo $cipher_text; ?></textarea>
+          <textarea name="cipher_text"><?php echo h($cipher_text); ?></textarea>
         </div>
         <div>
           <label for="private_key">Private Key</label>
