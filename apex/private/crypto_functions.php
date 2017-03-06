@@ -6,8 +6,9 @@
 const CIPHER_METHOD = 'AES-256-CBC';
 
 function key_encrypt($string, $key, $cipher_method=CIPHER_METHOD) {
-  $key = str_pad($key,32,'0');
-  $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length(CIPHER_METHOD));
+  $key = str_pad($key,32,'*');
+  $iv_length = openssl_cipher_iv_length(CIPHER_METHOD);
+  $iv = openssl_random_pseudo_bytes($iv_length);
   $encrypted = openssl_encrypt($string,CIPHER_METHOD,$key,OPENSSL_RAW_DATA,$iv);
   $message = $iv . $encrypted;
   return base64_encode($message);
@@ -15,10 +16,11 @@ function key_encrypt($string, $key, $cipher_method=CIPHER_METHOD) {
 }
 
 function key_decrypt($string, $key, $cipher_method=CIPHER_METHOD) {
-  $key = str_pad($key, 32, '0');
+  $key = str_pad($key, 32, '*');
   $iv_plus_ciphertext = base64_decode($string);
-  $iv = substr($iv_plus_ciphertext,0,openssl_cipher_iv_length(CIPHER_METHOD));
-  $cipher_text = substr($iv_plus_ciphertext,openssl_cipher_iv_length(CIPHER_METHOD));
+  $iv_length = openssl_cipher_iv_length(CIPHER_METHOD);
+  $iv = substr($iv_plus_ciphertext,0,$iv_length);
+  $cipher_text = substr($iv_plus_ciphertext,$iv_length);
   $plaintext = openssl_decrypt($cipher_text,CIPHER_METHOD,$key,OPENSSL_RAW_DATA,$iv);
  return $plaintext;
 }
